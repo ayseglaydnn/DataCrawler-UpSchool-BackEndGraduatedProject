@@ -1,0 +1,39 @@
+﻿@page "/createorder"
+@using Application.Features.Orders.Commands.Add;
+@using MediatR;
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Create Order</h3>
+
+<form>
+    <label for="requestedAmount">Requested Amount:</label>
+    <input type="number" id="requestedAmount" @bind="@orderAddCommand.RequestedAmount" />
+
+    <label for="productCrawlType">Product Crawl Type: </label>
+    <input type="number" id="productCrawlType" @bind="@orderAddCommand.ProductCrawlType" />
+    <h4> (0:all 1:onDiscount 2:NonDiscount):</h4>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" @bind="@orderAddCommand.Email" />
+    <h4>This email using for giving information about order status.</h4>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" @bind="@orderAddCommand.Name" />
+
+    <button type="button" @onclick="CreateOrder">Create Order</button>
+</form>
+
+
+@code {
+    private OrderAddCommand orderAddCommand = new OrderAddCommand();
+
+    private async Task CreateOrder()
+    {
+        //var response = await Mediator.Send(orderAddCommand);
+        // Handle the response as needed
+        // For example, display a success message or handle any errors
+
+
+    }
+}

@@ -1,0 +1,90 @@
+﻿@page "/settings"
+@using Application.Common.Interfaces;
+@using Application.Common.Models.Email;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Microsoft.AspNetCore.Components;
+
+<h1>Settings</h1>
+
+<div class="option">
+    <div class="toggle-switch @(appNotification ? "on" : "")" @onclick="ToggleAppNotification">
+        <div class="slider"></div>
+    </div>
+    <span>Send App Notification </span>
+</div>
+
+<div class="option">
+    <div class="toggle-switch @(emailNotification ? "on" : "")" @onclick="ToggleEmailNotification">
+        <div class="slider"></div>
+    </div>
+    <span>Send Email Notification </span>
+</div>
+
+<style>
+    .option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .toggle-switch {
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        width: 50px;
+        height: 25px;
+        border-radius: 25px;
+        background-color: #d3d3d3;
+        position: relative;
+        transition: background-color 0.3s;
+        margin-right: 10px;
+    }
+
+        .toggle-switch.on {
+            background-color: #28a745;
+        }
+
+    .slider {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: #fff;
+        position: absolute;
+        top: 2.5px;
+        left: 2.5px;
+        transition: transform 0.3s;
+    }
+
+    .toggle-switch.on .slider {
+        transform: translateX(25px);
+    }
+</style>
+
+@code {
+    private bool appNotification;
+    private bool emailNotification;
+
+    public NotificationSettingsDto notificationSettings = new NotificationSettingsDto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        appNotification = true;
+        emailNotification = true;
+
+        notificationSettings.AppNotification = appNotification;
+        notificationSettings.EmailNotification = emailNotification;
+    }
+
+    private void ToggleAppNotification()
+    {
+        appNotification = !appNotification;
+        notificationSettings.AppNotification = appNotification;
+
+    }
+
+    private void ToggleEmailNotification()
+    {
+        emailNotification = !emailNotification;
+        notificationSettings.EmailNotification = emailNotification;
+    }
+}

@@ -1,0 +1,93 @@
+﻿@page "/"
+@using Application.Common.Models.Order;
+@using Domain.Utilities;
+@using Microsoft.AspNetCore.SignalR.Client;
+@using Domain.Entities;
+@implements IAsyncDisposable
+
+
+<PageTitle>Index</PageTitle>
+
+
+@*<div class="card" style="witdth:55rem">
+    <select>
+        <option></option>
+        <option></option>
+        <option></option>
+    </select><br />
+</div>*@
+
+<div class="row">
+    @foreach (var order in orders)
+    {
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title text-center text-primary">@order.CreatedOn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group text-center">
+                        <input type="text" class="form-control text-center" value="@order.RequestedAmount">
+                    </div>
+                    <div class="input-group text-center mt-2">
+                        <input type="text" class="form-control text-center" value="@order.ProductCrawlType">
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        @*<button class="btn btn-info" @onclick="@(() => GoToEditPage(account.Id))">Add</button>
+                        <button class="btn btn-danger" @onclick="@(() => DeleteAccountAsync(account.Id))">Delete</button>*@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    private HubConnection? hubConnection;
+
+    List<OrderDto> orders = new List<OrderDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+
+
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7005/Hubs/OrderHub")
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<OrderDto>(SignalRMethodKeys.Orders.OrderAdded, (orderDto) =>
+        {
+            orders.Add(orderDto);
+
+            InvokeAsync(StateHasChanged);  //state'deki değişiklik için blazor'ı uyarıyoruz
+        });
+
+        await hubConnection.StartAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+    //private async Task 
+
+
+
+
+    public ValueTask DisposeAsync()
+    {
+        if(hubConnection is not null)
+        {
+            return hubConnection.DisposeAsync();
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+}

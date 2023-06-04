@@ -1,0 +1,76 @@
+﻿@page "/notifications"
+
+@using System.Collections.Generic
+@using Domain.Utilities;
+@using Microsoft.AspNetCore.SignalR.Client;
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+
+<h3>Notifications</h3>
+
+<div class="container">
+    <button class="notification-button" @onclick="ToggleNotifications">
+        <span class="notification-count">@notifications.Count</span>
+        <i class="fas fa-bell"></i>
+    </button>
+
+    <div class="notification-panel @(showNotifications ? "" : "hidden")">
+        <ul class="notification-list">
+            @if (notifications.Count == 0)
+            {
+                <li class="empty-notification">No new notifications</li>
+            }
+            else
+            {
+                @foreach (var notification in notifications)
+                {
+                    <li class="notification">@notification</li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    private bool showNotifications = true;
+    private List<string> notifications = new List<string>();
+
+    private void ToggleNotifications()
+    {
+        showNotifications = !showNotifications;
+    }
+
+    private HubConnection? hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var localStorageNotifications = await LocalStorage.GetItemAsync<List<string>>("savedNotifications");
+
+        if (localStorageNotifications is not null) notifications = localStorageNotifications;
+
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7005/Hubs/NotificationHub")
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string>(SignalRMethodKeys.Notification.AppNotificationSended, (notification) =>
+        {
+            
+            SaveLogsAsync(notification);//local storage
+
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+
+        await base.OnInitializedAsync();
+    }
+
+    private ValueTask SaveLogsAsync(string notification)
+    {
+        notifications.Add(notification);
+
+        return LocalStorage.SetItemAsync("savedNotifications", notifications);
+    }
+}
