@@ -13,6 +13,5 @@ namespace Domain.Common
         public DateTimeOffset CreatedOn { get; set; }
         public string? CreatedByUserId { get; set; }
 
-
     }
 }

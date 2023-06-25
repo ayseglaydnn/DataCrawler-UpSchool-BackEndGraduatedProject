@@ -59,7 +59,7 @@ namespace Application.Features.Orders.Commands.Add
 
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
 
-            var productDtos = await _crawlerService.ScrapeWebsiteAsync("https://finalproject.dotnet.gg/",order.Id.ToString(), request.RequestedAmount, request.ProductCrawlType, cancellationToken);
+            var productDtos = await _crawlerService.ScrapeWebsiteAsync("https://4teker.net/", order.Id.ToString(), request.RequestedAmount, request.ProductCrawlType, cancellationToken);
 
             foreach (var productDto in productDtos)
             {
