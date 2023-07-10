@@ -1,7 +1,9 @@
 using Application;
 using Application.Common.Interfaces;
 using Infrastructure;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Text;
 using WebApi.Hubs;
 using WebApi.Services;
 
@@ -18,6 +20,14 @@ try
     // Add services to the container.
 
     builder.Services.AddControllers();
+
+    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+    builder.Services.Configure<ApiBehaviorOptions>(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+    });
+
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -27,8 +37,6 @@ try
 	builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.WebRootPath);
 
-
-    
 
     builder.Services.AddScoped<IOrderHubService, OrderHubManager>();
     builder.Services.AddScoped<ICrawlerLogHubService, CrawlerLogHubManager>();

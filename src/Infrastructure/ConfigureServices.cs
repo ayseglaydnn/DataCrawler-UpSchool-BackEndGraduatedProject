@@ -50,9 +50,11 @@ namespace Infrastructure
             // Scoped Services
             services.AddScoped<ICrawlerService,CrawlerManager>();
 
+            services.AddScoped<IAuthenticationService, AuthenticationManager>();
 
-			//Singleton Services
-			services.AddSingleton<IEmailService>(new EmailManager(wwwrootPath));
+
+            //Singleton Services
+            services.AddSingleton<IEmailService>(new EmailManager(wwwrootPath));
 
 
 			return services;
