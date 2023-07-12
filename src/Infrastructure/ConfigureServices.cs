@@ -49,8 +49,8 @@ namespace Infrastructure
 
             // Scoped Services
             services.AddScoped<ICrawlerService,CrawlerManager>();
-
             services.AddScoped<IAuthenticationService, AuthenticationManager>();
+            services.AddSingleton<IJwtService, JwtManager>();
 
 
             //Singleton Services
