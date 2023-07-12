@@ -72,6 +72,40 @@ namespace Infrastructure.Services
             return _jwtService.Generate(user.Id, user.Email, user.FirstName, user.LastName);
         }
 
+        public async Task<JwtDto> SocialLoginAsync(string email, string firstName, string lastName, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is not null)
+                return _jwtService.Generate(user.Id, user.Email, user.FirstName, user.LastName);
+
+            var userId = Guid.NewGuid().ToString();
+
+            user = new User()
+            {
+                Id = userId,
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                FirstName = firstName,
+                LastName = lastName,
+                CreatedOn = DateTimeOffset.Now,
+                CreatedByUserId = userId,
+            };
+
+            var identityResult = await _userManager.CreateAsync(user);
+
+            if (!identityResult.Succeeded)
+            {
+                var failures = identityResult.Errors
+                    .Select(x => new ValidationFailure(x.Code, x.Description));
+
+                throw new ValidationException(failures);
+            }
+
+            return _jwtService.Generate(user.Id, user.Email, user.FirstName, user.LastName);
+        }
+
         private List<ValidationFailure> CreateValidationFailure => new List<ValidationFailure>()
         {
             new ValidationFailure("Email & Password","Your Email or Password is incorrect.")
