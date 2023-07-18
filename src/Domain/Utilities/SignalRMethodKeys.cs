@@ -11,6 +11,7 @@ namespace Domain.Utilities
         public static class Orders
         {
             public static string OrderAdded => nameof(OrderAdded);
+            public static string OrderRemoved => nameof(OrderRemoved);
         }
         public static class CreawlerLog
         {

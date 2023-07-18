@@ -9,9 +9,9 @@ namespace Application.Features.Orders.Queries.GetAll
 {
 	public class OrderGetAllQuery:IRequest<List<OrderGetAllDto>>
 	{
-        public string? CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; }
 
-        public OrderGetAllQuery(string? createdByUserId)
+        public OrderGetAllQuery(string createdByUserId)
         {
 			CreatedByUserId = createdByUserId;
 

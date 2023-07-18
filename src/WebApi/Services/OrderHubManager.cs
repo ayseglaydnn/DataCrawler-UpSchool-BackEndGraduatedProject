@@ -19,5 +19,10 @@ namespace WebApi.Services
 		{
 			return _hubContext.Clients.All.SendAsync(SignalRMethodKeys.Orders.OrderAdded, orderDto, cancellationToken); //??
 		}
-	}
+
+        public Task RemovedAsync(Guid id, CancellationToken cancellationToken)
+        {
+            return _hubContext.Clients.All.SendAsync(SignalRMethodKeys.Orders.OrderRemoved, id, cancellationToken);
+        }
+    }
 }

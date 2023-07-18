@@ -42,9 +42,11 @@ namespace Application.Features.Orders.Queries.GetAll
 				yield return new OrderGetAllDto()
 				{
 					Id = order.Id,
+					CreatedByUserId = order.CreatedByUserId,
 					RequestedAmount = order.RequestedAmount,
 					TotalFountAmount = order.TotalFountAmount,
 					ProductCrawlType = order.ProductCrawlType.ToString(),
+					CreatedOn = order.CreatedOn.ToString(),
 				}; 
 			}
 		}

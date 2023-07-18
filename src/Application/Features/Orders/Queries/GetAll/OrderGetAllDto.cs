@@ -14,6 +14,8 @@ namespace Application.Features.Orders.Queries.GetAll
 		public int RequestedAmount { get; set; }
 		public int TotalFountAmount { get; set; }
 		public string? ProductCrawlType { get; set; }
+		public string CreatedByUserId { get; set; }
+		public string CreatedOn { get; set; }
 
 	}
 }

@@ -16,22 +16,23 @@ namespace Application.Features.Orders.Commands.Add
 	public class OrderAddCommandHandler : IRequestHandler<OrderAddCommand, Response<Guid>>
 	{
 		private readonly IApplicationDbContext _applicationDbContext;
-
 		private readonly IOrderHubService _orderHubService;
-
 		private readonly IEmailService _emailService;
-
 		private readonly ICrawlerService _crawlerService;
-
 		private readonly INotificationHubService _notificationHubService;
-        public OrderAddCommandHandler(IApplicationDbContext applicationDbContext, IOrderHubService orderHubService, 
-			IEmailService emailService, ICrawlerService crawlerService, INotificationHubService notificationHubService)
+        private readonly ICurrentUserService _currentUserService;
+
+
+        public OrderAddCommandHandler(IApplicationDbContext applicationDbContext, IOrderHubService orderHubService,
+            IEmailService emailService, ICrawlerService crawlerService, INotificationHubService notificationHubService, 
+            ICurrentUserService currentUserService)
         {
             _applicationDbContext = applicationDbContext;
             _orderHubService = orderHubService;
             _emailService = emailService;
             _crawlerService = crawlerService;
             _notificationHubService = notificationHubService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Response<Guid>> Handle(OrderAddCommand request, CancellationToken cancellationToken)
@@ -42,7 +43,7 @@ namespace Application.Features.Orders.Commands.Add
                 RequestedAmount = request.RequestedAmount,
 				CreatedOn = DateTimeOffset.Now,
 				ProductCrawlType = (ProductCrawlType)request.ProductCrawlType,
-				CreatedByUserId = null,
+				CreatedByUserId = _currentUserService.UserId,
 			};
 
 			var orderEvent = new Domain.Entities.OrderEvent()
