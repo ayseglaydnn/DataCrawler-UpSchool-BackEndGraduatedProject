@@ -1,4 +1,5 @@
-﻿using Application.Features.Orders.Commands.Add;
+﻿using Application.Common.Models.Order;
+using Application.Features.Orders.Commands.Add;
 using Application.Features.Orders.Commands.Remove;
 using Application.Features.Orders.Queries.GetAll;
 using Application.Features.Orders.Queries.GetById;
@@ -17,7 +18,13 @@ namespace WebApi.Controllers
 			return Ok(await Mediator.Send(command));
 		}
 
-		[HttpPost("GetAll")]
+        [HttpPost("CrawlerWorkerService")]
+        public async Task<IActionResult> CrawlerWorkerServiceAsync(CrawlerWorkerServiceOrderDto orderAddDto)
+        {
+            return Ok();
+        }
+
+        [HttpPost("GetAll")]
 		public async Task<IActionResult> GetAllAsync(OrderGetAllQuery query)
 		{
 			return Ok(await Mediator.Send(query));
@@ -26,7 +33,7 @@ namespace WebApi.Controllers
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetByIdAsync(Guid id)
 		{
-			return Ok(await Mediator.Send(new OrderGetByIdQuery(id,null)));
+			return Ok(await Mediator.Send(new OrderGetByIdQuery(id)));
 		}
 
         [HttpDelete("{orderId}")]

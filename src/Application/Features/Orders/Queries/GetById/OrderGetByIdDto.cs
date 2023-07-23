@@ -11,7 +11,7 @@ namespace Application.Features.Orders.Queries.GetById
 		public Guid Id { get; set; }
 		public int RequestedAmount { get; set; }
 		public int TotalFountAmount { get; set; }
-		public string ProductCrawlType { get; set; }
+		public int ProductCrawlType { get; set; }
 
 	}
 }

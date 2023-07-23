@@ -1,4 +1,5 @@
 ﻿
+using Application.Common.Models.CrawlerLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Application.Common.Interfaces
 {
     public interface INotificationHubService
     {
-        Task SendAppNotificationAsync(string notification, CancellationToken cancellationToken);
+        Task SendAppNotificationAsync(AppNotificationDto notificationDto, CancellationToken cancellationToken);
     }
 }

@@ -83,14 +83,19 @@ namespace Infrastructure.Services
 
 							await Task.Delay(1000);
 
-						}
+                            if (scrapedProducts.Count >= requestedAmount)
+                            {
+                                break; // Exit the loop if the requested amount is reached
+                            }
+
+                        }
 
 						await _crawlerLogHubService.SendLogNotificationAsync(CreateLog($"Crawling of page {currentPage} is done"), cancellationToken);
 
-						if (scrapedProducts.Count >= requestedAmount)
-						{
-							break; // Exit the loop if the requested amount is reached
-						}
+						//if (scrapedProducts.Count >= requestedAmount)
+						//{
+						//	break; // Exit the loop if the requested amount is reached
+						//}
 
 						NextPageAsync(driver, websiteUrl, currentPage, cancellationToken);
 

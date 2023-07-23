@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using WebApi.Filters;
 using WebApi.Hubs;
 using WebApi.Services;
 
@@ -27,7 +28,10 @@ try
 
     // Add services to the container.
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers(opt =>
+    {
+        opt.Filters.Add<GlobalExceptionFilter>();
+    });
 
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
@@ -66,10 +70,9 @@ try
     });
     });
 
-    builder.Services.AddSignalR();
 
-	// Add services to the container.
-	builder.Services.AddApplicationServices();
+    // Add services to the container.
+    builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.WebRootPath);
 
     builder.Services.AddAuthentication(options =>
@@ -92,15 +95,33 @@ try
             ValidAudience = builder.Configuration["JwtSettings:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
         };
+        o.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                // If the request is for our hub...
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/Hubs/OrderHub")))
+                    //(path.StartsWithSegments("/Hubs/OrderHub") || (path.StartsWithSegments("/Hubs/CrawlerLogHub")) || (path.StartsWithSegments("/Hubs/NotificationHub"))))
+                {
+                    // Read the token out of the query string
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
+    builder.Services.AddSignalR();
 
     builder.Services.AddScoped<IOrderHubService, OrderHubManager>();
     builder.Services.AddScoped<ICrawlerLogHubService, CrawlerLogHubManager>();
     builder.Services.AddScoped<INotificationHubService, NotificationHubManager>();
 
-	// Configure CORS
-	builder.Services.AddCors(options =>
+    // Configure CORS
+    builder.Services.AddCors(options =>
 	{
 		options.AddPolicy("AllowAll",
 			builder => builder

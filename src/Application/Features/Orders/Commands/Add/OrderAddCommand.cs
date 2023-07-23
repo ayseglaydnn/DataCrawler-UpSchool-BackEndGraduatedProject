@@ -12,11 +12,11 @@ namespace Application.Features.Orders.Commands.Add
 {
 	public class OrderAddCommand:IRequest<Response<Guid>>
 	{
-		public int RequestedAmount { get; set; } 		
-		public int ProductCrawlType { get; set; }
-		public string Email { get; set; }
-		public string Name { get; set; }
 
-        //public int TotalFountAmount { get; set; }
+        public int RequestedAmount { get; set; } 		
+		public int ProductCrawlType { get; set; }
+		public string? Email { get; set; }
+		public string? Name { get; set; }
+
     }
 }

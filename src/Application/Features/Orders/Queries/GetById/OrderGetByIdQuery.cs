@@ -8,15 +8,13 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Orders.Queries.GetById
 {
-	public class OrderGetByIdQuery : IRequest<List<OrderGetByIdDto>>
+	public class OrderGetByIdQuery : IRequest<OrderGetByIdDto>
 	{
 		public Guid Id { get; set; }
-		public string? CreatedByUserId { get; set; }
 
-		public OrderGetByIdQuery(Guid id, string? createdByUserId)
+		public OrderGetByIdQuery(Guid id)
 		{
 			Id = id;
-			CreatedByUserId = createdByUserId;
 		}
 	}
 }

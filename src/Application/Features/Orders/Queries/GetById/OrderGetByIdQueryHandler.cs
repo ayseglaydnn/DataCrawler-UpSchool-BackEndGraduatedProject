@@ -11,42 +11,36 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Orders.Queries.GetById
 {
-	public class OrderGetByIdQueryHandler : IRequestHandler<OrderGetByIdQuery, List<OrderGetByIdDto>>
+	public class OrderGetByIdQueryHandler : IRequestHandler<OrderGetByIdQuery,OrderGetByIdDto>
 	{
 		private readonly IApplicationDbContext _applicationDbContext;
+        private readonly ICurrentUserService _currentUserService;
 
-		public OrderGetByIdQueryHandler(IApplicationDbContext applicationDbContext)
+        public OrderGetByIdQueryHandler(IApplicationDbContext applicationDbContext, ICurrentUserService currentUserService)
+        {
+            _applicationDbContext = applicationDbContext;
+            _currentUserService = currentUserService;
+        }
+
+		public async Task<OrderGetByIdDto> Handle(OrderGetByIdQuery request, CancellationToken cancellationToken)
 		{
-			_applicationDbContext = applicationDbContext;
+
+			var order = await _applicationDbContext.Orders.AsNoTracking()
+				.Where(x => x.CreatedByUserId == _currentUserService.UserId)
+				.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+			return MapOrderToGetByIdDto(order);
 		}
 
-		public async Task<List<OrderGetByIdDto>> Handle(OrderGetByIdQuery request, CancellationToken cancellationToken)
+		private OrderGetByIdDto MapOrderToGetByIdDto(Order order)
 		{
-			var dbQuery = _applicationDbContext.Orders.AsQueryable();
-
-			dbQuery = dbQuery.Where(x => x.Id == request.Id);
-
-
-			var orders = await dbQuery.ToListAsync(cancellationToken);
-
-			var orderDtos = MapOrdersToGetByIdDtos(orders);
-
-			return orderDtos.ToList();
-		}
-
-		private IEnumerable<OrderGetByIdDto> MapOrdersToGetByIdDtos(List<Order> orders)
-		{
-
-			foreach (var order in orders)
-			{
-				yield return new OrderGetByIdDto()
+				return new OrderGetByIdDto()
 				{
 					Id = order.Id,
 					RequestedAmount = order.RequestedAmount,
 					TotalFountAmount = order.TotalFountAmount,
-					ProductCrawlType = order.ProductCrawlType.ToString(),
+					ProductCrawlType = (int)order.ProductCrawlType,
 				};
-			}
 		}
 	}
 }

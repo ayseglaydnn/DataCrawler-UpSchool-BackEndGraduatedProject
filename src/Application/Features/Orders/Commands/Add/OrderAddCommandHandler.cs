@@ -1,6 +1,8 @@
 ﻿using Application.Common.Interfaces;
+using Application.Common.Models.CrawlerLog;
 using Application.Common.Models.Email;
 using Application.Common.Models.Order;
+using Application.Features.Orders.Queries.GetById;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Enums;
@@ -37,11 +39,17 @@ namespace Application.Features.Orders.Commands.Add
 
         public async Task<Response<Guid>> Handle(OrderAddCommand request, CancellationToken cancellationToken)
 		{
-			var order = new Order()
+            var orderId = Guid.NewGuid();
+
+            var websiteUrl = "https://4teker.net/";
+            var productDtos = await _crawlerService.ScrapeWebsiteAsync(websiteUrl, orderId.ToString(), request.RequestedAmount, request.ProductCrawlType, cancellationToken);
+
+            var order = new Order()
 			{
-				Id = Guid.NewGuid(),
+				Id = orderId,
                 RequestedAmount = request.RequestedAmount,
-				CreatedOn = DateTimeOffset.Now,
+                TotalFountAmount = productDtos.Count(),
+                CreatedOn = DateTimeOffset.Now,
 				ProductCrawlType = (ProductCrawlType)request.ProductCrawlType,
 				CreatedByUserId = _currentUserService.UserId,
 			};
@@ -60,7 +68,7 @@ namespace Application.Features.Orders.Commands.Add
 
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
 
-            var productDtos = await _crawlerService.ScrapeWebsiteAsync("https://4teker.net/", order.Id.ToString(), request.RequestedAmount, request.ProductCrawlType, cancellationToken);
+            
 
             foreach (var productDto in productDtos)
             {
@@ -89,7 +97,7 @@ namespace Application.Features.Orders.Commands.Add
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
 
 
-			await _orderHubService.AddedAsync(new OrderDto(request.RequestedAmount,request.ProductCrawlType,request.Email,request.Name), cancellationToken);
+            //await _orderHubService.AddedAsync(new OrderDto(request.RequestedAmount, request.ProductCrawlType,request.Email, request.Name), cancellationToken);
 
 
 
@@ -100,8 +108,15 @@ namespace Application.Features.Orders.Commands.Add
             //    Name = request.Name,
             //});
 
+            var notificationDto = new AppNotificationDto()
+            {
+                Message = $"Crawling process of order with {order.Id} Id is completed.",
+                SentOn = DateTimeOffset.Now,
+                UserId = _currentUserService.UserId,
+            };
+
 			//notification settings'e göre koşullandırılacak.
-            await _notificationHubService.SendAppNotificationAsync($"Crawling process of order with {order.Id} Id is completed.", cancellationToken);
+            await _notificationHubService.SendAppNotificationAsync(notificationDto, cancellationToken);
 
 
 			return new Response<Guid>($"The crawl request with amount of \"{order.RequestedAmount}\" has been successfully created.", order.Id);

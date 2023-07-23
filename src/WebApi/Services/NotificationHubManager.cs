@@ -15,9 +15,9 @@ namespace WebApi.Services
             _hubContext = hubContext;
         }
 
-        public Task SendAppNotificationAsync(string notification, CancellationToken cancellationToken)
+        public Task SendAppNotificationAsync(AppNotificationDto notificationDto, CancellationToken cancellationToken)
         {
-            return _hubContext.Clients.All.SendAsync(SignalRMethodKeys.Notification.AppNotificationSended, notification);
+            return _hubContext.Clients.All.SendAsync(SignalRMethodKeys.Notification.AppNotificationSended, notificationDto);
         }
     }
 }
